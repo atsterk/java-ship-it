@@ -46,14 +46,65 @@ public class DeliveryApp {
 
     private static void addParcel() {
         // Подсказка: спросите тип посылки и необходимые поля, создайте объект и добавьте в allParcels
+        System.out.println("Какой тип посылки вы хотите отправить?");
+        System.out.println("1 - Стандартная");
+        System.out.println("2 - Хрупкая");
+        System.out.println("3 - Скоропортящаяся");
+        int typeOfParcel = Integer.parseInt(scanner.nextLine());
+        if (typeOfParcel < 1 || typeOfParcel > 3) {
+            System.out.println("Неверный выбор");
+            return;
+        }
+
+        System.out.println("Введите описание посылки");
+        String description = scanner.nextLine();
+
+        System.out.println("Введите вес посылки");
+        int weight = Integer.parseInt(scanner.nextLine());
+
+        System.out.println("Введите адрес доставки");
+        String deliveryAddress = scanner.nextLine();
+
+        System.out.println("Введите дату отправки");
+        int sendDay = Integer.parseInt(scanner.nextLine());
+
+        switch (typeOfParcel) {
+            case 1: {
+                StandardParcel parcel = new StandardParcel(description, weight, deliveryAddress, sendDay);
+                allParcels.add(parcel);
+                break;
+            }
+            case 2: {
+                FragileParcel parcel = new FragileParcel(description, weight, deliveryAddress, sendDay);
+                allParcels.add(parcel);
+                break;
+            }
+            case 3: {
+                System.out.println("Введите срок годности посылки");
+                int timeToLive = Integer.parseInt(scanner.nextLine());
+                PerishableParcel parcel = new PerishableParcel(description, weight,
+                        deliveryAddress, sendDay, timeToLive);
+                allParcels.add(parcel);
+            }
+        }
     }
 
     private static void sendParcels() {
         // Пройти по allParcels, вызвать packageItem() и deliver()
+        for (Parcel parcel : allParcels) {
+            parcel.packageItem();
+            parcel.deliver();
+        }
+        System.out.println("Все посылки были успешно отправлены");
     }
 
     private static void calculateCosts() {
         // Посчитать общую стоимость всех доставок и вывести на экран
+        int result = 0;
+        for (Parcel parcel : allParcels) {
+            result += parcel.calculateDeliveryCost();
+        }
+        System.out.println("Общая цена за отправку: " + result);
     }
 
 }
