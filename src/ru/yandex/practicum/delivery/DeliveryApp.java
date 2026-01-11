@@ -9,11 +9,11 @@ public class DeliveryApp {
 
     private static final Scanner scanner = new Scanner(System.in);
     private static List<Parcel> allParcels = new ArrayList<>();
-    private static List<FragileParcel> trackableParcels = new ArrayList<>();
+    private static List<Parcel> trackableParcels = new ArrayList<>();
 
-    private static ParcelBox<StandardParcel> standardParcelBox = new ParcelBox<>(1000);
-    private static ParcelBox<FragileParcel> fragileParcelBox = new ParcelBox<>(1000);
-    private static ParcelBox<PerishableParcel> perishableParcelBox = new ParcelBox<>(1000);
+    private static ParcelBox<Parcel> standardParcelBox = new ParcelBox<>(1000);
+    private static ParcelBox<Parcel> fragileParcelBox = new ParcelBox<>(1000);
+    private static ParcelBox<Parcel> perishableParcelBox = new ParcelBox<>(1000);
 
     public static void main(String[] args) {
         boolean running = true;
@@ -64,6 +64,7 @@ public class DeliveryApp {
         System.out.println("1 - Стандартная");
         System.out.println("2 - Хрупкая");
         System.out.println("3 - Скоропортящаяся");
+
         int typeOfParcel = Integer.parseInt(scanner.nextLine());
         if (typeOfParcel < 1 || typeOfParcel > 3) {
             System.out.println("Неверный выбор");
@@ -82,16 +83,15 @@ public class DeliveryApp {
         System.out.println("Введите дату отправки");
         int sendDay = Integer.parseInt(scanner.nextLine());
 
+        Parcel parcel = null;
         switch (typeOfParcel) {
             case 1: {
-                StandardParcel parcel = new StandardParcel(description, weight, deliveryAddress, sendDay);
-                allParcels.add(parcel);
+                parcel = new StandardParcel(description, weight, deliveryAddress, sendDay);
                 standardParcelBox.addParcel(parcel);
                 break;
             }
             case 2: {
-                FragileParcel parcel = new FragileParcel(description, weight, deliveryAddress, sendDay);
-                allParcels.add(parcel);
+                parcel = new FragileParcel(description, weight, deliveryAddress, sendDay);
                 trackableParcels.add(parcel);
                 fragileParcelBox.addParcel(parcel);
                 break;
@@ -99,12 +99,16 @@ public class DeliveryApp {
             case 3: {
                 System.out.println("Введите срок годности посылки");
                 int timeToLive = Integer.parseInt(scanner.nextLine());
-                PerishableParcel parcel = new PerishableParcel(description, weight,
+                parcel = new PerishableParcel(description, weight,
                         deliveryAddress, sendDay, timeToLive);
-                allParcels.add(parcel);
                 perishableParcelBox.addParcel(parcel);
             }
+            default: {
+                System.out.println("Неверный ввод");
+            }
         }
+
+        allParcels.add(parcel);
     }
 
     private static void sendParcels() {
@@ -126,10 +130,11 @@ public class DeliveryApp {
     }
 
     private static void checkStatus() {
-        for (FragileParcel parcel : trackableParcels) {
+        for (Parcel parcel : trackableParcels) {
             System.out.println("Введите местоположение посылки");
             String newLocation = scanner.nextLine();
-            parcel.reportStatus(newLocation);
+            FragileParcel fragileParcel = (FragileParcel) parcel;
+            fragileParcel.reportStatus(newLocation);
         }
     }
 
@@ -144,22 +149,22 @@ public class DeliveryApp {
         switch (typeOfBox) {
             case 1:
                 System.out.println("Все стандартные посылки: ");
-                ArrayList<StandardParcel> standardParcels = standardParcelBox.getAllParcels();
-                for (StandardParcel parcel : standardParcels) {
+                List<Parcel> standardParcels = standardParcelBox.getAllParcels();
+                for (Parcel parcel : standardParcels) {
                     System.out.println("Посылка " + parcel.getDescription());
                 }
                 break;
             case 2:
                 System.out.println("Все хрупкие посылки: ");
-                ArrayList<FragileParcel> fragileParcels = fragileParcelBox.getAllParcels();
-                for (FragileParcel parcel : fragileParcels) {
+                List<Parcel> fragileParcels = fragileParcelBox.getAllParcels();
+                for (Parcel parcel : fragileParcels) {
                     System.out.println("Посылка " + parcel.getDescription());
                 }
                 break;
             case 3:
                 System.out.println("Все скоропортящиеся посылки: ");
-                ArrayList<PerishableParcel> perishableParcels = perishableParcelBox.getAllParcels();
-                for (PerishableParcel parcel : perishableParcels) {
+                List<Parcel> perishableParcels = perishableParcelBox.getAllParcels();
+                for (Parcel parcel : perishableParcels) {
                     System.out.println("Посылка " + parcel.getDescription());
                 }
                 break;
