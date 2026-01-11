@@ -1,5 +1,6 @@
 package ru.yandex.practicum.delivery;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -9,6 +10,10 @@ public class DeliveryApp {
     private static final Scanner scanner = new Scanner(System.in);
     private static List<Parcel> allParcels = new ArrayList<>();
     private static List<FragileParcel> trackableParcels = new ArrayList<>();
+
+    private static ParcelBox<StandardParcel> standardParcelBox = new ParcelBox<>(1000);
+    private static ParcelBox<FragileParcel> fragileParcelBox = new ParcelBox<>(1000);
+    private static ParcelBox<PerishableParcel> perishableParcelBox = new ParcelBox<>(1000);
 
     public static void main(String[] args) {
         boolean running = true;
@@ -29,6 +34,9 @@ public class DeliveryApp {
                 case 4:
                     checkStatus();
                     break;
+                case 5:
+                    checkBox();
+                    break;
                 case 0:
                     running = false;
                     break;
@@ -44,6 +52,7 @@ public class DeliveryApp {
         System.out.println("2 — Отправить все посылки");
         System.out.println("3 — Посчитать стоимость доставки");
         System.out.println("4 - Проверить статус отслеживаемых посылок");
+        System.out.println("5 - Показать содержимое коробки");
         System.out.println("0 — Завершить");
     }
 
@@ -77,12 +86,14 @@ public class DeliveryApp {
             case 1: {
                 StandardParcel parcel = new StandardParcel(description, weight, deliveryAddress, sendDay);
                 allParcels.add(parcel);
+                standardParcelBox.addParcel(parcel);
                 break;
             }
             case 2: {
                 FragileParcel parcel = new FragileParcel(description, weight, deliveryAddress, sendDay);
                 allParcels.add(parcel);
                 trackableParcels.add(parcel);
+                fragileParcelBox.addParcel(parcel);
                 break;
             }
             case 3: {
@@ -91,6 +102,7 @@ public class DeliveryApp {
                 PerishableParcel parcel = new PerishableParcel(description, weight,
                         deliveryAddress, sendDay, timeToLive);
                 allParcels.add(parcel);
+                perishableParcelBox.addParcel(parcel);
             }
         }
     }
@@ -118,6 +130,41 @@ public class DeliveryApp {
             System.out.println("Введите местоположение посылки");
             String newLocation = scanner.nextLine();
             parcel.reportStatus(newLocation);
+        }
+    }
+
+    private static void checkBox() {
+        System.out.println("Введите тип коробки которую хотите посмотреть");
+        System.out.println("1 - Стандартные посылки");
+        System.out.println("2 - Хрупкие посылки");
+        System.out.println("3 - Скоропортящиеся посылки");
+
+        int typeOfBox = Integer.parseInt(scanner.nextLine());
+
+        switch (typeOfBox) {
+            case 1:
+                System.out.println("Все стандартные посылки: ");
+                ArrayList<StandardParcel> standardParcels = standardParcelBox.getAllParcels();
+                for (StandardParcel parcel : standardParcels) {
+                    System.out.println("Посылка " + parcel.getDescription());
+                }
+                break;
+            case 2:
+                System.out.println("Все хрупкие посылки: ");
+                ArrayList<FragileParcel> fragileParcels = fragileParcelBox.getAllParcels();
+                for (FragileParcel parcel : fragileParcels) {
+                    System.out.println("Посылка " + parcel.getDescription());
+                }
+                break;
+            case 3:
+                System.out.println("Все скоропортящиеся посылки: ");
+                ArrayList<PerishableParcel> perishableParcels = perishableParcelBox.getAllParcels();
+                for (PerishableParcel parcel : perishableParcels) {
+                    System.out.println("Посылка " + parcel.getDescription());
+                }
+                break;
+            default:
+                System.out.println("Неверный выбор");
         }
     }
 
